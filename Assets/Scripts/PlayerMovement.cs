@@ -2,28 +2,39 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    // O Rigidbody permite que o Unity controle a física do objeto
-    public Rigidbody rb;
+    [Header("Velocidades")]
+    public float velocidadeFrente = 8f;   // velocidade para a frente (automática)
+    public float velocidadeLateral = 5f;  // velocidade ao pressionar A ou D
 
-    // Força para mover para a frente e para os lados
-    public float forwardForce = 1000f; 
-    public float sidewaysForce = 50f;
+    [Header("Limites laterais")]
+    public float limiteX = 3f;            // até onde o jogador se pode desviar
 
-    // A lógica de física tem de estar no FixedUpdate (exigência do professor)
+    private Rigidbody rb;                 // referência ao Rigidbody do jogador
+
+    void Start()
+    {
+        // Vai buscar o componente Rigidbody que está no mesmo objeto
+        rb = GetComponent<Rigidbody>();
+    }
+
     void FixedUpdate()
     {
-        // Movimento contínuo no eixo Z (para a frente)
-        rb.AddForce(0, 0, forwardForce * Time.fixedDeltaTime);
+        // FixedUpdate é usado para física — o professor avalia isto!
 
-        // Input do jogador (teclas laterais A/D ou setas)
-        if (Input.GetKey("d") || Input.GetKey(KeyCode.RightArrow))
-        {
-            rb.AddForce(sidewaysForce * Time.fixedDeltaTime, 0, 0, ForceMode.VelocityChange);
-        }
+        // 1. Movimento automático para a frente (eixo Z)
+        Vector3 velocidadeAtual = rb.linearVelocity;
+        velocidadeAtual.z = velocidadeFrente;
 
-        if (Input.GetKey("a") || Input.GetKey(KeyCode.LeftArrow))
-        {
-            rb.AddForce(-sidewaysForce * Time.fixedDeltaTime, 0, 0, ForceMode.VelocityChange);
-        }
+        // 2. Input lateral do jogador (teclas A/D ou setas)
+        float inputLateral = Input.GetAxis("Horizontal"); // -1 (esquerda), 0, ou 1 (direita)
+        velocidadeAtual.x = inputLateral * velocidadeLateral;
+
+        // 3. Aplica a velocidade ao Rigidbody
+        rb.linearVelocity = velocidadeAtual;
+
+        // 4. Limita a posição lateral para o jogador não sair do caminho
+        Vector3 pos = transform.position;
+        pos.x = Mathf.Clamp(pos.x, -limiteX, limiteX);
+        transform.position = pos;
     }
 }
