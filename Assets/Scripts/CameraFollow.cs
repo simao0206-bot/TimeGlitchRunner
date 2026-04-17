@@ -3,27 +3,29 @@ using UnityEngine;
 public class CameraFollow : MonoBehaviour
 {
     [Header("Alvo a seguir")]
-    public Transform alvo;              // o objeto Player
+    public Transform alvo;
 
     [Header("Offset da câmara")]
-    public Vector3 offset = new Vector3(0f, 4f, -7f); // posição relativa ao jogador
+    public Vector3 offset = new Vector3(0f, 4f, -7f);
 
-    public float velocidadeSeguir = 10f; // suavidade do movimento
+    public float velocidadeSeguir = 8f;
+
+    private Vector3 velocidadeAtual = Vector3.zero;
 
     void LateUpdate()
     {
-        // LateUpdate corre depois do FixedUpdate — ideal para câmaras
-        // para garantir que o jogador já se moveu antes de a câmara atualizar
+        if (alvo == null) return;
 
-        if (alvo == null) return; // segurança: se não tiver alvo, não faz nada
-
-        // Posição desejada = posição do jogador + offset
         Vector3 posicaoDesejada = alvo.position + offset;
 
-        // Move a câmara suavemente para a posição desejada
-        transform.position = Vector3.Lerp(transform.position, posicaoDesejada, velocidadeSeguir * Time.deltaTime);
+        // SmoothDamp é muito mais suave que Lerp — elimina vibrações
+        transform.position = Vector3.SmoothDamp(
+            transform.position,
+            posicaoDesejada,
+            ref velocidadeAtual,
+            0.1f
+        );
 
-        // A câmara olha sempre para o jogador
         transform.LookAt(alvo);
     }
 }

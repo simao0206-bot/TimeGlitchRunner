@@ -3,38 +3,50 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     [Header("Velocidades")]
-    public float velocidadeFrente = 8f;   // velocidade para a frente (automática)
-    public float velocidadeLateral = 5f;  // velocidade ao pressionar A ou D
+    public float velocidadeInicial = 8f;    // velocidade no início
+    public float velocidadeMaxima = 20f;    // velocidade máxima
+    public float aumentoVelocidade = 0.5f;  // quanto aumenta por segundo
+    public float velocidadeLateral = 5f;
 
     [Header("Limites laterais")]
-    public float limiteX = 3f;            // até onde o jogador se pode desviar
+    public float limiteX = 3f;
 
-    private Rigidbody rb;                 // referência ao Rigidbody do jogador
+    private Rigidbody rb;
+    private float velocidadeAtualFrente;
 
     void Start()
     {
-        // Vai buscar o componente Rigidbody que está no mesmo objeto
         rb = GetComponent<Rigidbody>();
+        velocidadeAtualFrente = velocidadeInicial;
     }
 
     void FixedUpdate()
     {
-        // FixedUpdate é usado para física — o professor avalia isto!
+        // Aumenta a velocidade gradualmente até ao máximo
+        velocidadeAtualFrente = Mathf.Min(
+            velocidadeAtualFrente + aumentoVelocidade * Time.fixedDeltaTime,
+            velocidadeMaxima
+        );
 
-        // 1. Movimento automático para a frente (eixo Z)
-        Vector3 velocidadeAtual = rb.linearVelocity;
-        velocidadeAtual.z = velocidadeFrente;
+        // Movimento automático para a frente
+        Vector3 velocidade = rb.linearVelocity;
+        velocidade.z = velocidadeAtualFrente;
 
-        // 2. Input lateral do jogador (teclas A/D ou setas)
-        float inputLateral = Input.GetAxis("Horizontal"); // -1 (esquerda), 0, ou 1 (direita)
-        velocidadeAtual.x = inputLateral * velocidadeLateral;
+        // Input lateral
+        float inputLateral = Input.GetAxis("Horizontal");
+        velocidade.x = inputLateral * velocidadeLateral;
 
-        // 3. Aplica a velocidade ao Rigidbody
-        rb.linearVelocity = velocidadeAtual;
+        rb.linearVelocity = velocidade;
 
-        // 4. Limita a posição lateral para o jogador não sair do caminho
+        // Limita posição lateral
         Vector3 pos = transform.position;
         pos.x = Mathf.Clamp(pos.x, -limiteX, limiteX);
         transform.position = pos;
+    }
+
+    // Devolve a velocidade atual (para o GameManager poder mostrar)
+    public float GetVelocidade()
+    {
+        return velocidadeAtualFrente;
     }
 }
