@@ -16,7 +16,7 @@ RenderSettings:
   serializedVersion: 10
   m_Fog: 1
   m_FogColor: {r: 0, g: 0, b: 0, a: 1}
-  m_FogMode: 1
+  m_FogMode: 2
   m_FogDensity: 0.01
   m_LinearFogStart: 30
   m_LinearFogEnd: 80
@@ -172,6 +172,8 @@ MonoBehaviour:
   textoAviso: {fileID: 1514842114}
   painelFlash: {fileID: 1446958180}
   somGlitch: {fileID: 8300000, guid: ecf8d3a5b2a98fa4693f38fbf744f01b, type: 3}
+  playerMovement: {fileID: 1117628089}
+  obstacleSpawner: {fileID: 141370248}
 --- !u!1 &141370246
 GameObject:
   m_ObjectHideFlags: 0
@@ -309,8 +311,8 @@ Camera:
   m_GameObject: {fileID: 330585543}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0.97735846, g: 0.6015969, b: 0.027660921, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
