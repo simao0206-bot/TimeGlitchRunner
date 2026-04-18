@@ -10,10 +10,11 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Salto")]
     public float forcaSalto = 7f;
+    public float forcaSaltoMaxima = 10f;    // limita o salto mesmo com velocidade alta
     private bool noChao = false;
 
     [Header("Agachar")]
-    public float escalaAgachado = 0.5f;     // escala Y quando agachado
+    public float escalaAgachado = 0.5f;
     private bool agachado = false;
     private Vector3 escalaOriginal;
 
@@ -27,39 +28,55 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         velocidadeAtualFrente = velocidadeInicial;
-        escalaOriginal = transform.localScale;  // guarda a escala original
+        escalaOriginal = transform.localScale;
     }
 
     void Update()
-{
-    // Verifica se está no chão pela posição Y
-    noChao = transform.position.y <= 1.2f;
-
-    // Salto
-    if ((Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.Space)) && noChao)
     {
-        rb.AddForce(Vector3.up * forcaSalto, ForceMode.Impulse);
-        noChao = false;
-    }
+        // Verifica se está no chão
+        noChao = transform.position.y <= 1.5f;
 
-    // Agachar
-    if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.LeftShift))
-    {
-        agachado = true;
-        transform.localScale = new Vector3(escalaOriginal.x, escalaOriginal.y * escalaAgachado, escalaOriginal.z);
-        // Desce o jogador para não flutuar
-        transform.position = new Vector3(transform.position.x, 0.6f, transform.position.z);
-    }
+        // Salto — força limitada independente da velocidade do jogo
+        if ((Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.Space)) && noChao)
+        {
+            float forca = Mathf.Min(forcaSalto, forcaSaltoMaxima);
+            rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+            rb.AddForce(Vector3.up * forca, ForceMode.Impulse);
+            noChao = false;
+        }
 
-    // Levantar
-    if (Input.GetKeyUp(KeyCode.S) || Input.GetKeyUp(KeyCode.LeftShift))
-    {
-        agachado = false;
-        transform.localScale = escalaOriginal;
-        // Volta à altura normal
-        transform.position = new Vector3(transform.position.x, 1.1f, transform.position.z);
+        // Agachar — funciona também no ar (interrompe o salto)
+        if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            if (!agachado)
+            {
+                agachado = true;
+                transform.localScale = new Vector3(escalaOriginal.x, escalaOriginal.y * escalaAgachado, escalaOriginal.z);
+
+                // Se estiver no ar, puxa para o chão imediatamente
+                if (!noChao)
+                {
+                    rb.linearVelocity = new Vector3(rb.linearVelocity.x, -15f, rb.linearVelocity.z);
+                }
+                else
+                {
+                    transform.position = new Vector3(transform.position.x, 0.7f, transform.position.z);
+                }
+            }
+        }
+
+        // Levantar
+        if (Input.GetKeyUp(KeyCode.S) || Input.GetKeyUp(KeyCode.LeftShift))
+        {
+            if (agachado)
+            {
+                agachado = false;
+                transform.localScale = escalaOriginal;
+                if (noChao)
+                    transform.position = new Vector3(transform.position.x, 1.1f, transform.position.z);
+            }
+        }
     }
-}
 
     void FixedUpdate()
     {
@@ -82,12 +99,8 @@ public class PlayerMovement : MonoBehaviour
         transform.position = pos;
     }
 
-    // Deteta quando o jogador toca no chão
-    void OnCollisionEnter(Collision collision)
+    public float GetVelocidade()
     {
-        if (collision.gameObject.CompareTag("Ground") || collision.gameObject.name.Contains("Ground"))
-        {
-            noChao = true;
-        }
+        return velocidadeAtualFrente;
     }
 }

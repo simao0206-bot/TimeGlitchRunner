@@ -1,43 +1,76 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;  // necessário para reiniciar a cena
-using TMPro;                         // necessário para o texto no ecrã
+using UnityEngine.SceneManagement;
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
     [Header("UI")]
-    public TextMeshProUGUI textoPontuacao;   // texto que mostra a pontuação
-    public TextMeshProUGUI textoGameOver;    // texto de Game Over
-    public TextMeshProUGUI textoReiniciar;   // texto "Prima R para reiniciar"
+    public TextMeshProUGUI textoPontuacao;
+    public TextMeshProUGUI textoGameOver;
+    public TextMeshProUGUI textoReiniciar;
+    public TextMeshProUGUI textoDistorcao;  // mostra "DISTORCAO TEMPORAL!" quando ativo
 
-    private float pontuacao = 0f;            // pontuação atual (tempo sobrevivido)
-    private bool jogoTerminado = false;      // controla se o jogo acabou
+    private float pontuacao = 0f;
+    private int pontosExtras = 0;           // pontos dos cristais
+    private bool jogoTerminado = false;
 
     void Start()
     {
-        // Esconde os textos de Game Over no início
         textoGameOver.gameObject.SetActive(false);
         textoReiniciar.gameObject.SetActive(false);
+
+        if (textoDistorcao != null)
+            textoDistorcao.gameObject.SetActive(false);
     }
 
     void Update()
     {
         if (!jogoTerminado)
         {
-            // Pontuação = tempo sobrevivido em segundos
             pontuacao += Time.deltaTime;
-
-            // Atualiza o texto no ecrã
-            textoPontuacao.text = "Tempo: " + Mathf.FloorToInt(pontuacao) + "s";
+            int total = Mathf.FloorToInt(pontuacao) + pontosExtras;
+            textoPontuacao.text = "Pontos: " + total;
         }
 
-        // Se o jogo terminou, espera o jogador carregar R para reiniciar
         if (jogoTerminado && Input.GetKeyDown(KeyCode.R))
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            Time.timeScale = 1f;            // garante que o tempo volta ao normal
+            SceneManager.LoadScene("MenuScene");
         }
     }
 
-    // Esta função é chamada por outros scripts quando o jogador morre
+    // Chamado pelos cristais
+    public void AdicionarPontos(int pontos)
+    {
+        pontosExtras += pontos;
+    }
+
+    // Chamado pelo cristal raro
+    public void IniciarDistorcaoTemporal(float duracao, float escala)
+    {
+        StartCoroutine(DistorcaoTemporal(duracao, escala));
+    }
+
+    System.Collections.IEnumerator DistorcaoTemporal(float duracao, float escala)
+    {
+        // Abranda o tempo
+        Time.timeScale = escala;
+
+        if (textoDistorcao != null)
+        {
+            textoDistorcao.gameObject.SetActive(true);
+            textoDistorcao.text = "DISTORCAO TEMPORAL!";
+        }
+
+        yield return new WaitForSecondsRealtime(duracao);
+
+        // Volta ao normal
+        Time.timeScale = 1f;
+
+        if (textoDistorcao != null)
+            textoDistorcao.gameObject.SetActive(false);
+    }
+
     public void GameOver()
     {
         jogoTerminado = true;
