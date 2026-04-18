@@ -76,5 +76,9 @@ public class GameManager : MonoBehaviour
         jogoTerminado = true;
         textoGameOver.gameObject.SetActive(true);
         textoReiniciar.gameObject.SetActive(true);
+
+        // Para o glitch
+        TimeGlitch tg = FindFirstObjectByType<TimeGlitch>();
+        if (tg != null) tg.PararGlitch();
     }
 }
