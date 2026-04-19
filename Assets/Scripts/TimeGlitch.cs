@@ -5,6 +5,9 @@ using System.Collections;
 
 public class TimeGlitch : MonoBehaviour
 {
+    [Header("Decorações")]
+    public DecoradorEpoca decorador;
+    
     [Header("Materiais")]
     public Material materialChao;
     public Material materialObstaculo;
@@ -50,18 +53,18 @@ public class TimeGlitch : MonoBehaviour
 
     // =================== NÉVOA POR ÉPOCA ===================
     private Color[] coresNevoa = {
-        new Color(0.7f, 0.5f, 0.3f),        // Pré-história (laranja)
-        new Color(0.4f, 0.4f, 0.4f),        // Medieval (cinzento denso)
-        new Color(0.5f, 0.5f, 0.5f),        // Moderno (poluição)
-        new Color(0.1f, 0.0f, 0.2f)         // Futuro (roxo escuro)
-    };
+    new Color(0.8f, 0.5f, 0.2f),        // Pré-história (laranja suave)
+    new Color(0.4f, 0.4f, 0.4f),        // Medieval
+    new Color(0.5f, 0.5f, 0.5f),        // Moderno
+    new Color(0.1f, 0.0f, 0.2f)         // Futuro
+};
 
     private float[] densidadeNevoa = {
-        0.02f,                               // Pré-história (fraca)
-        0.06f,                               // Medieval (muito densa!)
-        0.03f,                               // Moderno (média)
-        0.04f                                // Futuro (média/escura)
-    };
+    0.02f,                               // Pré-história (muito fraca para ver o céu)
+    0.06f,                               // Medieval (muito densa!)
+    0.03f,                               // Moderno
+    0.04f                                // Futuro
+};
 
     // =================== CÉU POR ÉPOCA ===================
     private Color[] coresCeu = {
@@ -243,12 +246,7 @@ public class TimeGlitch : MonoBehaviour
         RenderSettings.fogMode = FogMode.Exponential;
         RenderSettings.fogDensity = densidadeNevoa[indice];
 
-        // 3. Cor do céu
-        if (camaraMain != null)
-        {
-            camaraMain.clearFlags = CameraClearFlags.SolidColor;
-            camaraMain.backgroundColor = coresCeu[indice];
-        }
+        
 
         // 4. Velocidade do jogador
         if (playerMovement != null)
@@ -265,6 +263,10 @@ public class TimeGlitch : MonoBehaviour
         // 7. Atualiza texto da época
         if (textoEpoca != null)
             textoEpoca.text = nomesEpocas[indice];
+
+        // 8. Atualiza decorações laterais
+        if (decorador != null)
+            decorador.MudarEpoca(indice);
     }
 
     public void PararGlitch()

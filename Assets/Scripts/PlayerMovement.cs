@@ -45,25 +45,16 @@ public class PlayerMovement : MonoBehaviour
             noChao = false;
         }
 
-        // Agachar — funciona também no ar (interrompe o salto)
-        if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.LeftShift))
-        {
-            if (!agachado)
-            {
-                agachado = true;
-                transform.localScale = new Vector3(escalaOriginal.x, escalaOriginal.y * escalaAgachado, escalaOriginal.z);
-
-                // Se estiver no ar, puxa para o chão imediatamente
-                if (!noChao)
-                {
-                    rb.linearVelocity = new Vector3(rb.linearVelocity.x, -15f, rb.linearVelocity.z);
-                }
-                else
-                {
-                    transform.position = new Vector3(transform.position.x, 0.7f, transform.position.z);
-                }
-            }
-        }
+        // Agachar — só com S ou Shift, NUNCA com W
+        if ((Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.LeftShift)) && !agachado)
+    {   
+         agachado = true;
+         transform.localScale = new Vector3(escalaOriginal.x, escalaOriginal.y * escalaAgachado, escalaOriginal.z);
+         if (!noChao)
+             rb.linearVelocity = new Vector3(rb.linearVelocity.x, -15f, rb.linearVelocity.z);
+         else
+             transform.position = new Vector3(transform.position.x, 0.7f, transform.position.z);
+    }
 
         // Levantar
         if (Input.GetKeyUp(KeyCode.S) || Input.GetKeyUp(KeyCode.LeftShift))
