@@ -38,7 +38,7 @@ public class DecoradorEpoca : MonoBehaviour
 
     void Update()
     {
-        if (jogador.position.z + 60f > zUltimaDecoracao)
+        if (jogador.position.z + 80f > zUltimaDecoracao)
         {
             CriarParDeDecoracoes(zUltimaDecoracao);
             zUltimaDecoracao += intervaloDecoracao;
@@ -111,7 +111,8 @@ CriarDecoracao(new Vector3(distanciaLateral + 20f, 0f, z + Random.Range(-1f, 1f)
         if (prefab == null) return;
 
         GameObject obj = Instantiate(prefab, posicao, Quaternion.Euler(0f, Random.Range(0f, 360f), 0f));
-        obj.transform.localScale = Vector3.one * escala * Random.Range(0.8f, 1.3f);
+        float escalaFinal = Mathf.Min(escala * Random.Range(0.8f, 1.3f), 1.5f);
+        obj.transform.localScale = Vector3.one * escalaFinal;
 
         // Remove colliders para não interferir com o jogo
         foreach (Collider col in obj.GetComponentsInChildren<Collider>())
