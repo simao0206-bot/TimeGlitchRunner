@@ -10,7 +10,7 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Salto")]
     public float forcaSalto = 7f;
-    public float forcaSaltoMaxima = 10f;    // limita o salto mesmo com velocidade alta
+    public float forcaSaltoMaxima = 10f;
     private bool noChao = false;
 
     [Header("Agachar")]
@@ -33,11 +33,26 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        // Verifica se está no chão
         noChao = transform.position.y <= 1.5f;
 
-        // Salto — força limitada independente da velocidade do jogo
-        if ((Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.Space)) && noChao)
+        bool carregouSaltar =
+            Input.GetKeyDown(KeyCode.W) ||
+            Input.GetKeyDown(KeyCode.Space) ||
+            Input.GetKeyDown(KeyCode.UpArrow);
+
+        bool carregouAgachar =
+            Input.GetKeyDown(KeyCode.S) ||
+            Input.GetKeyDown(KeyCode.LeftShift) ||
+            Input.GetKeyDown(KeyCode.RightShift) ||
+            Input.GetKeyDown(KeyCode.DownArrow);
+
+        bool largouAgachar =
+            Input.GetKeyUp(KeyCode.S) ||
+            Input.GetKeyUp(KeyCode.LeftShift) ||
+            Input.GetKeyUp(KeyCode.RightShift) ||
+            Input.GetKeyUp(KeyCode.DownArrow);
+
+        if (carregouSaltar && noChao)
         {
             float forca = Mathf.Min(forcaSalto, forcaSaltoMaxima);
             rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
@@ -45,24 +60,28 @@ public class PlayerMovement : MonoBehaviour
             noChao = false;
         }
 
-        // Agachar — só com S ou Shift, NUNCA com W
-        if ((Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.LeftShift)) && !agachado)
-    {   
-         agachado = true;
-         transform.localScale = new Vector3(escalaOriginal.x, escalaOriginal.y * escalaAgachado, escalaOriginal.z);
-         if (!noChao)
-             rb.linearVelocity = new Vector3(rb.linearVelocity.x, -15f, rb.linearVelocity.z);
-         else
-             transform.position = new Vector3(transform.position.x, 0.7f, transform.position.z);
-    }
+        if (carregouAgachar && !agachado)
+        {
+            agachado = true;
+            transform.localScale = new Vector3(
+                escalaOriginal.x,
+                escalaOriginal.y * escalaAgachado,
+                escalaOriginal.z
+            );
 
-        // Levantar
-        if (Input.GetKeyUp(KeyCode.S) || Input.GetKeyUp(KeyCode.LeftShift))
+            if (!noChao)
+                rb.linearVelocity = new Vector3(rb.linearVelocity.x, -15f, rb.linearVelocity.z);
+            else
+                transform.position = new Vector3(transform.position.x, 0.7f, transform.position.z);
+        }
+
+        if (largouAgachar)
         {
             if (agachado)
             {
                 agachado = false;
                 transform.localScale = escalaOriginal;
+
                 if (noChao)
                     transform.position = new Vector3(transform.position.x, 1.1f, transform.position.z);
             }
@@ -71,7 +90,6 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
-        // Aumenta velocidade gradualmente
         velocidadeAtualFrente = Mathf.Min(
             velocidadeAtualFrente + aumentoVelocidade * Time.fixedDeltaTime,
             velocidadeMaxima
