@@ -38,6 +38,7 @@ public class TimeGlitch : MonoBehaviour
     public GameObject deerModel;
     public GameObject horseModel;
     public GameObject dogModel;
+    public GameObject capsulaFuturoModel;
 
     [Header("Passeios Modernos")]
     public GameObject passeioEsquerdo;
@@ -45,6 +46,9 @@ public class TimeGlitch : MonoBehaviour
 
     [Header("Cidade Moderna")]
     public GameObject cidadeModerna;
+
+    [Header("Futuro")]
+    public GameObject chaoFuturo;
 
     private Color[] coresObstaculo = {
         new Color(0.5f, 0.4f, 0.3f),
@@ -57,20 +61,20 @@ public class TimeGlitch : MonoBehaviour
         new Color(0.7f, 0.5f, 0.2f),
         new Color(0.7f, 0.7f, 0.7f),
         new Color(0.45f, 0.45f, 0.45f),
-        new Color(0.0f, 0.9f, 1.0f)
+        new Color(0.95f, 0.95f, 1.0f)
     };
 
     private Color[] coresNevoa = {
         new Color(0.8f, 0.5f, 0.2f),
         new Color(0.4f, 0.4f, 0.4f),
-        new Color(0.45f, 0.45f, 0.48f),
-        new Color(0.1f, 0.0f, 0.2f)
+        new Color(0.55f, 0.55f, 0.6f),
+        new Color(0.6f, 0.2f, 0.9f)
     };
 
     private float[] densidadeNevoa = {
         0.02f,
         0.03f,
-        0.06f,
+        0.008f,
         0.04f
     };
 
@@ -106,13 +110,14 @@ public class TimeGlitch : MonoBehaviour
         new Vector3(0f, 4f, -7f),
         new Vector3(0f, 4f, -7f),
         new Vector3(0f, 4f, -7f),
-        new Vector3(0f, 12f, -2f)
+        new Vector3(0f, 18f, -12f)
     };
 
     private int epocaAtual = 0;
     private AudioSource audioSource;
     private CameraFollow cameraFollow;
     private CidadeModernaSpawner cidadeModernaSpawner;
+    private Camera mainCamera;
 
     void Start()
     {
@@ -121,6 +126,7 @@ public class TimeGlitch : MonoBehaviour
             audioSource = gameObject.AddComponent<AudioSource>();
 
         cameraFollow = FindFirstObjectByType<CameraFollow>();
+        mainCamera = Camera.main;
 
         if (cidadeModerna != null)
             cidadeModernaSpawner = cidadeModerna.GetComponent<CidadeModernaSpawner>();
@@ -242,8 +248,16 @@ public class TimeGlitch : MonoBehaviour
         RenderSettings.fogMode = FogMode.Exponential;
         RenderSettings.fogDensity = densidadeNevoa[indice];
 
+        ConfigurarFundoCamara(indice);
+
         if (playerMovement != null)
-            playerMovement.velocidadeMaxima = velocidadesMaximas[indice];
+{
+    float novaVel = velocidadesMaximas[indice];
+
+    // Só aumenta, nunca diminui
+    if (novaVel > playerMovement.velocidadeMaxima)
+        playerMovement.velocidadeMaxima = novaVel;
+}
 
         if (obstacleSpawner != null)
         {
@@ -292,13 +306,12 @@ public class TimeGlitch : MonoBehaviour
             if (indice == 2)
             {
                 cidadeModerna.SetActive(true);
-                 // força reposicionamento imediato
-                BuildingLoopRowIrregular[] loops = cidadeModerna.GetComponentsInChildren<BuildingLoopRowIrregular>();
 
-                 foreach (var loop in loops)
-             {
-              loop.ReposicionarParaFrente();
-              }
+                BuildingLoopRowIrregular[] loops = cidadeModerna.GetComponentsInChildren<BuildingLoopRowIrregular>(true);
+                foreach (BuildingLoopRowIrregular loop in loops)
+                {
+                    loop.ReposicionarParaFrente();
+                }
             }
             else
             {
@@ -309,10 +322,32 @@ public class TimeGlitch : MonoBehaviour
             }
         }
 
+        if (chaoFuturo != null)
+            chaoFuturo.SetActive(indice == 3);
+
         GameObject[] obstaculos = GameObject.FindGameObjectsWithTag("Obstaculo");
         foreach (GameObject obj in obstaculos)
         {
             Destroy(obj);
+        }
+    }
+
+    void ConfigurarFundoCamara(int indice)
+    {
+        if (mainCamera == null)
+            mainCamera = Camera.main;
+
+        if (mainCamera == null)
+            return;
+
+        if (indice == 3)
+        {
+            mainCamera.clearFlags = CameraClearFlags.SolidColor;
+            mainCamera.backgroundColor = coresNevoa[3];
+        }
+        else
+        {
+            mainCamera.clearFlags = CameraClearFlags.Skybox;
         }
     }
 
@@ -348,7 +383,16 @@ public class TimeGlitch : MonoBehaviour
             string nomeObj = rend.gameObject.name.ToLower();
             string nomePai = rend.transform.root.name.ToLower();
 
-            if (nomeObj.Contains("ground") || nomePai.Contains("ground"))
+            bool ehChaoOuEstrada =
+                nomeObj.Contains("ground") || nomePai.Contains("ground") ||
+                nomeObj.Contains("road") || nomePai.Contains("road") ||
+                nomeObj.Contains("street") || nomePai.Contains("street") ||
+                nomeObj.Contains("floor") || nomePai.Contains("floor") ||
+                nomeObj.Contains("plane") || nomePai.Contains("plane") ||
+                nomeObj.Contains("passeio") || nomePai.Contains("passeio") ||
+                nomeObj.Contains("sidewalk") || nomePai.Contains("sidewalk");
+
+            if (ehChaoOuEstrada)
                 rend.material = materialEscolhido;
         }
     }
@@ -362,7 +406,10 @@ public class TimeGlitch : MonoBehaviour
             horseModel.SetActive(indice == 1);
 
         if (dogModel != null)
-            dogModel.SetActive(indice == 2 || indice == 3);
+            dogModel.SetActive(indice == 2);
+
+        if (capsulaFuturoModel != null)
+            capsulaFuturoModel.SetActive(indice == 3);
     }
 
     public void PararGlitch()

@@ -1,8 +1,9 @@
 using UnityEngine;
 
-public class FollowPlayerZ : MonoBehaviour
+public class FollowPlayerZComOffset : MonoBehaviour
 {
     public Transform jogador;
+    public float offsetZ = -120f;
 
     void Update()
     {
@@ -11,7 +12,7 @@ public class FollowPlayerZ : MonoBehaviour
         transform.position = new Vector3(
             transform.position.x,
             transform.position.y,
-            jogador.position.z
+            jogador.position.z + offsetZ
         );
     }
 }
