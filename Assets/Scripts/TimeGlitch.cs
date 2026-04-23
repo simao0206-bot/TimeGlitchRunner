@@ -7,11 +7,16 @@ public class TimeGlitch : MonoBehaviour
 {
     [Header("Decorações")]
     public DecoradorEpoca decorador;
-    
-    [Header("Materiais")]
-    public Material materialChao;
+
+    [Header("Materiais dos Objetos")]
     public Material materialObstaculo;
     public Material materialPlayer;
+
+    [Header("Materiais do Chão por Época")]
+    public Material materialChaoPreHistoria;
+    public Material materialChaoMedieval;
+    public Material materialChaoModerno;
+    public Material materialChaoFuturo;
 
     [Header("Épocas")]
     public float duracaoMinima = 18f;
@@ -26,70 +31,63 @@ public class TimeGlitch : MonoBehaviour
     public AudioClip somGlitch;
 
     [Header("Referências")]
-    public PlayerMovement playerMovement;   // para ajustar velocidade por época
-    public ObstacleSpawner obstacleSpawner; // para ajustar intervalo por época
+    public PlayerMovement playerMovement;
+    public ObstacleSpawner obstacleSpawner;
 
-    // =================== CORES POR ÉPOCA ===================
-    private Color[] coresChao = {
-        new Color(0.4f, 0.3f, 0.1f),       // Pré-história (terra)
-        new Color(0.35f, 0.35f, 0.35f),     // Medieval (pedra)
-        new Color(0.2f, 0.2f, 0.2f),        // Moderno (alcatrão)
-        new Color(0.05f, 0.05f, 0.15f)      // Futuro (metal escuro)
-    };
+    [Header("Modelos por época")]
+    public GameObject deerModel;
+    public GameObject horseModel;
+    public GameObject dogModel;
+
+    [Header("Passeios Modernos")]
+    public GameObject passeioEsquerdo;
+    public GameObject passeioDireito;
+
+    [Header("Cidade Moderna")]
+    public GameObject cidadeModerna;
 
     private Color[] coresObstaculo = {
-        new Color(0.5f, 0.4f, 0.3f),        // Pré-história (rocha)
-        new Color(0.4f, 0.25f, 0.1f),       // Medieval (madeira)
-        new Color(0.9f, 0.4f, 0.0f),        // Moderno (cone laranja)
-        new Color(0.8f, 0.0f, 0.2f)         // Futuro (laser vermelho)
+        new Color(0.5f, 0.4f, 0.3f),
+        new Color(0.4f, 0.25f, 0.1f),
+        new Color(0.35f, 0.35f, 0.35f),
+        new Color(0.8f, 0.0f, 0.2f)
     };
 
     private Color[] coresPlayer = {
-        new Color(0.7f, 0.5f, 0.2f),        // Pré-história (bege)
-        new Color(0.7f, 0.7f, 0.7f),        // Medieval (prata)
-        new Color(0.1f, 0.4f, 0.9f),        // Moderno (azul)
-        new Color(0.0f, 0.9f, 1.0f)         // Futuro (ciano néon)
+        new Color(0.7f, 0.5f, 0.2f),
+        new Color(0.7f, 0.7f, 0.7f),
+        new Color(0.45f, 0.45f, 0.45f),
+        new Color(0.0f, 0.9f, 1.0f)
     };
 
-    // =================== NÉVOA POR ÉPOCA ===================
     private Color[] coresNevoa = {
-    new Color(0.8f, 0.5f, 0.2f),        // Pré-história (laranja suave)
-    new Color(0.4f, 0.4f, 0.4f),        // Medieval
-    new Color(0.5f, 0.5f, 0.5f),        // Moderno
-    new Color(0.1f, 0.0f, 0.2f)         // Futuro
-};
+        new Color(0.8f, 0.5f, 0.2f),
+        new Color(0.4f, 0.4f, 0.4f),
+        new Color(0.45f, 0.45f, 0.48f),
+        new Color(0.1f, 0.0f, 0.2f)
+    };
 
     private float[] densidadeNevoa = {
-    0.02f,                               // Pré-história (muito fraca para ver o céu)
-    0.06f,                               // Medieval (muito densa!)
-    0.03f,                               // Moderno
-    0.04f                                // Futuro
-};
-
-    // =================== CÉU POR ÉPOCA ===================
-    private Color[] coresCeu = {
-        new Color(0.8f, 0.5f, 0.2f),        // Pré-história (laranja)
-        new Color(0.3f, 0.3f, 0.4f),        // Medieval (nublado)
-        new Color(0.4f, 0.4f, 0.5f),        // Moderno (cinzento urbano)
-        new Color(0.02f, 0.0f, 0.08f)       // Futuro (preto/roxo)
+        0.02f,
+        0.03f,
+        0.06f,
+        0.04f
     };
 
-    // =================== VELOCIDADE POR ÉPOCA ===================
     private float[] velocidadesMaximas = {
-        12f,                                 // Pré-história (lento)
-        15f,                                 // Medieval (médio)
-        18f,                                 // Moderno (rápido)
-        22f                                  // Futuro (muito rápido)
+        12f,
+        15f,
+        18f,
+        22f
     };
 
     private float[] intervalosObstaculos = {
-        2.5f,                                // Pré-história (espaçado)
-        2.0f,                                // Medieval
-        1.5f,                                // Moderno
-        1.0f                                 // Futuro (muito frequente)
+        2.5f,
+        1.6f,
+        1.4f,
+        1.0f
     };
 
-    // =================== TEXTOS ===================
     private string[] nomesEpocas = {
         "PRE-HISTORIA",
         "MEDIEVAL",
@@ -97,25 +95,24 @@ public class TimeGlitch : MonoBehaviour
         "FUTURO"
     };
 
-    private string[] avisosPoéticos = {
+    private string[] avisosPoeticos = {
         "O tempo desperta da poeira...",
         "A nevoa esconde o fio da espada.",
         "O betao asfixia a pressa dos passos.",
         "Apenas os circuitos sobrevivem."
     };
 
-    // =================== CÂMERA ===================
     private Vector3[] offsetsCamara = {
-        new Vector3(0f, 4f, -7f),            // Pré-história (normal)
-        new Vector3(0f, 4f, -7f),            // Medieval (normal)
-        new Vector3(0f, 4f, -7f),            // Moderno (normal)
-        new Vector3(0f, 12f, -2f)            // Futuro (quase Top-Down)
+        new Vector3(0f, 4f, -7f),
+        new Vector3(0f, 4f, -7f),
+        new Vector3(0f, 4f, -7f),
+        new Vector3(0f, 12f, -2f)
     };
 
     private int epocaAtual = 0;
     private AudioSource audioSource;
-    private Camera camaraMain;
     private CameraFollow cameraFollow;
+    private CidadeModernaSpawner cidadeModernaSpawner;
 
     void Start()
     {
@@ -123,10 +120,11 @@ public class TimeGlitch : MonoBehaviour
         if (audioSource == null)
             audioSource = gameObject.AddComponent<AudioSource>();
 
-        camaraMain = Camera.main;
         cameraFollow = FindFirstObjectByType<CameraFollow>();
 
-        // Aplica época inicial
+        if (cidadeModerna != null)
+            cidadeModernaSpawner = cidadeModerna.GetComponent<CidadeModernaSpawner>();
+
         AplicarEpoca(0);
 
         if (textoAviso != null)
@@ -156,7 +154,7 @@ public class TimeGlitch : MonoBehaviour
         if (textoAviso != null)
         {
             textoAviso.gameObject.SetActive(true);
-            textoAviso.text = avisosPoéticos[proximaEpoca];
+            textoAviso.text = avisosPoeticos[proximaEpoca];
             textoAviso.color = Color.red;
             textoAviso.enabled = true;
         }
@@ -185,7 +183,6 @@ public class TimeGlitch : MonoBehaviour
         {
             painelFlash.gameObject.SetActive(true);
 
-            // Glitch digital
             for (int i = 0; i < 6; i++)
             {
                 float r = Random.Range(0f, 0.3f);
@@ -197,13 +194,11 @@ public class TimeGlitch : MonoBehaviour
                 yield return new WaitForSeconds(0.05f);
             }
 
-            // Preto total — muda época aqui
             painelFlash.color = new Color(0f, 0f, 0f, 1f);
             epocaAtual = (epocaAtual + 1) % nomesEpocas.Length;
             AplicarEpoca(epocaAtual);
             yield return new WaitForSeconds(0.1f);
 
-            // Mais glitch depois
             for (int i = 0; i < 4; i++)
             {
                 float r = Random.Range(0f, 0.3f);
@@ -215,7 +210,6 @@ public class TimeGlitch : MonoBehaviour
                 yield return new WaitForSeconds(0.05f);
             }
 
-            // Fade out
             float t = 0.8f;
             while (t > 0f)
             {
@@ -235,43 +229,146 @@ public class TimeGlitch : MonoBehaviour
 
     void AplicarEpoca(int indice)
     {
-        // 1. Materiais
-        materialChao.color = coresChao[indice];
-        materialObstaculo.color = coresObstaculo[indice];
-        materialPlayer.color = coresPlayer[indice];
+        AplicarMaterialChao(indice);
 
-        // 2. Névoa
+        if (materialObstaculo != null)
+            materialObstaculo.color = coresObstaculo[indice];
+
+        if (materialPlayer != null)
+            materialPlayer.color = coresPlayer[indice];
+
         RenderSettings.fog = true;
         RenderSettings.fogColor = coresNevoa[indice];
         RenderSettings.fogMode = FogMode.Exponential;
         RenderSettings.fogDensity = densidadeNevoa[indice];
 
-        
-
-        // 4. Velocidade do jogador
         if (playerMovement != null)
             playerMovement.velocidadeMaxima = velocidadesMaximas[indice];
 
-        // 5. Frequência dos obstáculos
         if (obstacleSpawner != null)
+        {
             obstacleSpawner.intervalo = intervalosObstaculos[indice];
 
-        // 6. Câmera — muda offset por época
+            if (indice == 0)
+                obstacleSpawner.AtivarPreHistoria();
+            else if (indice == 1)
+                obstacleSpawner.AtivarMedieval();
+            else if (indice == 2)
+                obstacleSpawner.AtivarModerno();
+            else
+                obstacleSpawner.AtivarFuturo();
+        }
+
         if (cameraFollow != null)
             cameraFollow.offset = offsetsCamara[indice];
 
-        // 7. Atualiza texto da época
         if (textoEpoca != null)
             textoEpoca.text = nomesEpocas[indice];
 
-        // 8. Atualiza decorações laterais
         if (decorador != null)
-            decorador.MudarEpoca(indice);
+        {
+            if (indice == 0 || indice == 1)
+            {
+                decorador.gameObject.SetActive(true);
+                decorador.MudarEpoca(indice);
+            }
+            else
+            {
+                decorador.LimparTodasDecoracoes();
+                decorador.gameObject.SetActive(false);
+            }
+        }
+
+        AtualizarModeloJogador(indice);
+
+        if (passeioEsquerdo != null)
+            passeioEsquerdo.SetActive(indice == 2);
+
+        if (passeioDireito != null)
+            passeioDireito.SetActive(indice == 2);
+
+        if (cidadeModerna != null)
+        {
+            if (indice == 2)
+            {
+                cidadeModerna.SetActive(true);
+                 // força reposicionamento imediato
+                BuildingLoopRowIrregular[] loops = cidadeModerna.GetComponentsInChildren<BuildingLoopRowIrregular>();
+
+                 foreach (var loop in loops)
+             {
+              loop.ReposicionarParaFrente();
+              }
+            }
+            else
+            {
+                if (cidadeModernaSpawner != null)
+                    cidadeModernaSpawner.LimparTudo();
+
+                cidadeModerna.SetActive(false);
+            }
+        }
+
+        GameObject[] obstaculos = GameObject.FindGameObjectsWithTag("Obstaculo");
+        foreach (GameObject obj in obstaculos)
+        {
+            Destroy(obj);
+        }
+    }
+
+    void AplicarMaterialChao(int indice)
+    {
+        Material materialEscolhido = null;
+
+        switch (indice)
+        {
+            case 0:
+                materialEscolhido = materialChaoPreHistoria;
+                break;
+            case 1:
+                materialEscolhido = materialChaoMedieval;
+                break;
+            case 2:
+                materialEscolhido = materialChaoModerno;
+                break;
+            case 3:
+                materialEscolhido = materialChaoFuturo;
+                break;
+        }
+
+        if (materialEscolhido == null)
+            return;
+
+        Renderer[] todosOsRenderers = FindObjectsByType<Renderer>(FindObjectsSortMode.None);
+
+        foreach (Renderer rend in todosOsRenderers)
+        {
+            if (rend == null) continue;
+
+            string nomeObj = rend.gameObject.name.ToLower();
+            string nomePai = rend.transform.root.name.ToLower();
+
+            if (nomeObj.Contains("ground") || nomePai.Contains("ground"))
+                rend.material = materialEscolhido;
+        }
+    }
+
+    void AtualizarModeloJogador(int indice)
+    {
+        if (deerModel != null)
+            deerModel.SetActive(indice == 0);
+
+        if (horseModel != null)
+            horseModel.SetActive(indice == 1);
+
+        if (dogModel != null)
+            dogModel.SetActive(indice == 2 || indice == 3);
     }
 
     public void PararGlitch()
     {
         StopAllCoroutines();
+
         if (textoAviso != null)
             textoAviso.gameObject.SetActive(false);
     }

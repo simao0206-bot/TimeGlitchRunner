@@ -45,7 +45,8 @@ public class ObstacleCollision : MonoBehaviour
             GetComponent<PlayerMovement>().enabled = false;
 
             // Game Over
-            gameManager.GameOver();
+           gameManager.GameOver();
+
         }
     }
 }

@@ -6,22 +6,49 @@ public class DecoradorEpoca : MonoBehaviour
     [Header("Referência")]
     public Transform jogador;
 
-    [Header("Configuração")]
-    public float distanciaLateral = 6f;
+    [Header("Configuração Geral")]
     public float intervaloDecoracao = 5f;
-    public int numeroDecoracoes = 12;
+    public int numeroDecoracoes = 20;
+
+    [Header("Distâncias laterais Pré-História")]
+    public float preHistoriaCamada1 = 6f;
+    public float preHistoriaCamada2 = 8.5f;
+    public float preHistoriaCamada3 = 12f;
+    public float preHistoriaCamada4 = 16f;
+    public float preHistoriaCamada5 = 20f;
+    public float preHistoriaCamada6 = 24f;
+
+    [Header("Distâncias laterais Medieval")]
+    public float medievalCamada1 = 4.5f;
+    public float medievalCamada2 = 6.5f;
+    public float medievalCamada3 = 9f;
+    public float medievalCamada4 = 12f;
+    public float medievalCamada5 = 16f;
+    public float medievalCamada6 = 20f;
+
+    [Header("Offset Y por época")]
+    public float offsetYPreHistoria = 0f;
+    public float offsetYMedieval = 0f;
+    public float offsetYModerno = 0f;
+    public float offsetYFuturo = 0f;
 
     [Header("Prefabs Pré-História")]
-    public GameObject[] prefabsPreHistoria;  // arrasta Tree_01, Rock_01, Bush_01, etc.
+    public GameObject[] prefabsPreHistoria;
 
-    [Header("Prefabs Medieval")]
-    public GameObject[] prefabsMedieval;     // assets medievais quando tiveres
+    [Header("Prefabs Medieval - PERTO")]
+    public GameObject[] prefabsMedievalPerto;
+
+    [Header("Prefabs Medieval - MEIO")]
+    public GameObject[] prefabsMedievalMeio;
+
+    [Header("Prefabs Medieval - LONGE")]
+    public GameObject[] prefabsMedievalLonge;
 
     [Header("Prefabs Moderno")]
-    public GameObject[] prefabsModerno;      // assets modernos quando tiveres
+    public GameObject[] prefabsModerno;
 
     [Header("Prefabs Futuro")]
-    public GameObject[] prefabsFuturo;       // assets futuristas quando tiveres
+    public GameObject[] prefabsFuturo;
 
     private List<GameObject> decoracoesAtivas = new List<GameObject>();
     private float zUltimaDecoracao = 0f;
@@ -29,16 +56,19 @@ public class DecoradorEpoca : MonoBehaviour
 
     void Start()
     {
-        for (int i = 0; i < numeroDecoracoes; i++)
+        if (jogador == null) return;
+
+        for (int i = -4; i < numeroDecoracoes; i++)
         {
-            CriarParDeDecoracoes(i * intervaloDecoracao);
+            CriarParDeDecoracoes(jogador.position.z + i * intervaloDecoracao);
         }
-        zUltimaDecoracao = numeroDecoracoes * intervaloDecoracao;
+
+        zUltimaDecoracao = jogador.position.z + numeroDecoracoes * intervaloDecoracao;
     }
 
     void Update()
     {
-        if (jogador.position.z + 80f > zUltimaDecoracao)
+        if (jogador != null && jogador.position.z + 180f > zUltimaDecoracao)
         {
             CriarParDeDecoracoes(zUltimaDecoracao);
             zUltimaDecoracao += intervaloDecoracao;
@@ -51,7 +81,8 @@ public class DecoradorEpoca : MonoBehaviour
                 decoracoesAtivas.RemoveAt(i);
                 continue;
             }
-            if (decoracoesAtivas[i].transform.position.z < jogador.position.z - 30f)
+
+            if (decoracoesAtivas[i].transform.position.z < jogador.position.z - 40f)
             {
                 Destroy(decoracoesAtivas[i]);
                 decoracoesAtivas.RemoveAt(i);
@@ -60,86 +91,161 @@ public class DecoradorEpoca : MonoBehaviour
     }
 
     void CriarParDeDecoracoes(float z)
-{
-    // Camada 1 — perto do caminho (objetos pequenos)
-    CriarDecoracao(new Vector3(-distanciaLateral, 0f, z), epocaAtual, 0.8f);
-    CriarDecoracao(new Vector3(distanciaLateral, 0f, z), epocaAtual, 0.8f);
-
-    // Camada 2 — meio (objetos médios)
-    if (Random.value > 0.3f)
     {
-        CriarDecoracao(new Vector3(-distanciaLateral - 2.5f, 0f, z + Random.Range(-1.5f, 1.5f)), epocaAtual, 1.2f);
-        CriarDecoracao(new Vector3(distanciaLateral + 2.5f, 0f, z + Random.Range(-1.5f, 1.5f)), epocaAtual, 1.2f);
+        if (epocaAtual == 1)
+            CriarParDeDecoracoesMedieval(z);
+        else
+            CriarParDeDecoracoesNormal(z);
     }
 
-    // Camada 3 — longe
-if (Random.value > 0.5f)
-{
-    CriarDecoracao(new Vector3(-distanciaLateral - 8f, 0f, z + Random.Range(-2f, 2f)), epocaAtual, 2.0f);
-    CriarDecoracao(new Vector3(distanciaLateral + 8f, 0f, z + Random.Range(-2f, 2f)), epocaAtual, 2.0f);
-}
-
-// Camada 4 — muito longe (tapa as bordas)
-if (Random.value > 0.4f)
-{
-    CriarDecoracao(new Vector3(-distanciaLateral - 12f, 0f, z + Random.Range(-2f, 2f)), epocaAtual, 3.0f);
-    CriarDecoracao(new Vector3(distanciaLateral + 12f, 0f, z + Random.Range(-2f, 2f)), epocaAtual, 3.0f);
-}
-
-// Camada 5 — extremo
-CriarDecoracao(new Vector3(-distanciaLateral - 16f, 0f, z + Random.Range(-2f, 2f)), epocaAtual, 4.0f);
-CriarDecoracao(new Vector3(distanciaLateral + 16f, 0f, z + Random.Range(-2f, 2f)), epocaAtual, 4.0f);
-
-// Camada 6 — muro de árvores gigantes
-CriarDecoracao(new Vector3(-distanciaLateral - 20f, 0f, z + Random.Range(-1f, 1f)), epocaAtual, 6.0f);
-CriarDecoracao(new Vector3(distanciaLateral + 20f, 0f, z + Random.Range(-1f, 1f)), epocaAtual, 6.0f);
-}
-
-    void CriarDecoracao(Vector3 posicao, int epoca, float escala)
+    void CriarParDeDecoracoesNormal(float z)
     {
-        GameObject[] prefabsEpoca = GetPrefabsEpoca(epoca);
+        float c1 = preHistoriaCamada1;
+        float c2 = preHistoriaCamada2;
+        float c3 = preHistoriaCamada3;
+        float c4 = preHistoriaCamada4;
+        float c5 = preHistoriaCamada5;
+        float c6 = preHistoriaCamada6;
+
+        CriarDecoracao(new Vector3(-c1, 0f, z), epocaAtual, 0, 0.8f);
+        CriarDecoracao(new Vector3(c1, 0f, z), epocaAtual, 0, 0.8f);
+
+        if (Random.value > 0.3f)
+        {
+            CriarDecoracao(new Vector3(-c2, 0f, z + Random.Range(-1.5f, 1.5f)), epocaAtual, 1, 1.0f);
+            CriarDecoracao(new Vector3(c2, 0f, z + Random.Range(-1.5f, 1.5f)), epocaAtual, 1, 1.0f);
+        }
+
+        if (Random.value > 0.5f)
+        {
+            CriarDecoracao(new Vector3(-c3, 0f, z + Random.Range(-2f, 2f)), epocaAtual, 2, 1.1f);
+            CriarDecoracao(new Vector3(c3, 0f, z + Random.Range(-2f, 2f)), epocaAtual, 2, 1.1f);
+        }
+
+        if (Random.value > 0.4f)
+        {
+            CriarDecoracao(new Vector3(-c4, 0f, z + Random.Range(-2f, 2f)), epocaAtual, 3, 1.2f);
+            CriarDecoracao(new Vector3(c4, 0f, z + Random.Range(-2f, 2f)), epocaAtual, 3, 1.2f);
+        }
+
+        CriarDecoracao(new Vector3(-c5, 0f, z + Random.Range(-2f, 2f)), epocaAtual, 4, 1.3f);
+        CriarDecoracao(new Vector3(c5, 0f, z + Random.Range(-2f, 2f)), epocaAtual, 4, 1.3f);
+
+        CriarDecoracao(new Vector3(-c6, 0f, z + Random.Range(-1f, 1f)), epocaAtual, 5, 1.4f);
+        CriarDecoracao(new Vector3(c6, 0f, z + Random.Range(-1f, 1f)), epocaAtual, 5, 1.4f);
+    }
+
+    void CriarParDeDecoracoesMedieval(float z)
+    {
+        float c1 = medievalCamada1;
+        float c2 = medievalCamada2;
+        float c3 = medievalCamada3;
+        float c4 = medievalCamada4;
+        float c5 = medievalCamada5;
+        float c6 = medievalCamada6;
+
+        CriarDecoracao(new Vector3(-c1, 0f, z), 1, 0, 0.9f);
+        CriarDecoracao(new Vector3(c1, 0f, z), 1, 0, 0.9f);
+
+        if (Random.value > 0.25f)
+        {
+            CriarDecoracao(new Vector3(-c2, 0f, z + Random.Range(-1.5f, 1.5f)), 1, 1, 1.0f);
+            CriarDecoracao(new Vector3(c2, 0f, z + Random.Range(-1.5f, 1.5f)), 1, 1, 1.0f);
+        }
+
+        if (Random.value > 0.35f)
+        {
+            CriarDecoracao(new Vector3(-c3, 0f, z + Random.Range(-2f, 2f)), 1, 2, 1.0f);
+            CriarDecoracao(new Vector3(c3, 0f, z + Random.Range(-2f, 2f)), 1, 2, 1.0f);
+        }
+
+        if (Random.value > 0.25f)
+        {
+            CriarDecoracao(new Vector3(-c4, 0f, z + Random.Range(-2f, 2f)), 1, 3, 1.1f);
+            CriarDecoracao(new Vector3(c4, 0f, z + Random.Range(-2f, 2f)), 1, 3, 1.1f);
+        }
+
+        CriarDecoracao(new Vector3(-c5, 0f, z + Random.Range(-2f, 2f)), 1, 4, 1.0f);
+        CriarDecoracao(new Vector3(c5, 0f, z + Random.Range(-2f, 2f)), 1, 4, 1.0f);
+
+        CriarDecoracao(new Vector3(-c6, 0f, z + Random.Range(-1f, 1f)), 1, 5, 1.1f);
+        CriarDecoracao(new Vector3(c6, 0f, z + Random.Range(-1f, 1f)), 1, 5, 1.1f);
+    }
+
+    void CriarDecoracao(Vector3 posicaoBase, int epoca, int camada, float multiplicadorEscala)
+    {
+        GameObject[] prefabsEpoca = GetPrefabsEpocaPorCamada(epoca, camada);
 
         if (prefabsEpoca == null || prefabsEpoca.Length == 0)
         {
-            // Se não tiver prefabs, usa primitivos simples
-            CriarPrimitivoSimples(posicao, epoca, escala);
+            CriarPrimitivoSimples(posicaoBase, epoca, multiplicadorEscala);
             return;
         }
 
-        // Escolhe um prefab aleatório da época
         GameObject prefab = prefabsEpoca[Random.Range(0, prefabsEpoca.Length)];
         if (prefab == null) return;
 
-        GameObject obj = Instantiate(prefab, posicao, Quaternion.Euler(0f, Random.Range(0f, 360f), 0f));
-        float escalaFinal = Mathf.Min(escala * Random.Range(0.8f, 1.3f), 1.5f);
-        obj.transform.localScale = Vector3.one * escalaFinal;
+        float offsetY = GetOffsetYEpoca(epoca);
+        Vector3 posicaoFinal = new Vector3(posicaoBase.x, posicaoBase.y + offsetY, posicaoBase.z);
 
-        // Remove colliders para não interferir com o jogo
+        GameObject obj = Instantiate(prefab, posicaoFinal, Quaternion.Euler(0f, Random.Range(-20f, 20f), 0f));
+
+        Vector3 escalaOriginal = prefab.transform.localScale;
+        float variacao = Random.Range(0.9f, 1.1f);
+        obj.transform.localScale = escalaOriginal * (multiplicadorEscala * variacao);
+
         foreach (Collider col in obj.GetComponentsInChildren<Collider>())
+        {
             col.enabled = false;
+        }
 
         decoracoesAtivas.Add(obj);
     }
 
-    GameObject[] GetPrefabsEpoca(int epoca)
+    GameObject[] GetPrefabsEpocaPorCamada(int epoca, int camada)
     {
         switch (epoca)
         {
-            case 0: return prefabsPreHistoria;
-            case 1: return prefabsMedieval;
-            case 2: return prefabsModerno;
-            case 3: return prefabsFuturo;
-            default: return prefabsPreHistoria;
+            case 0:
+                return prefabsPreHistoria;
+            case 1:
+                if (camada <= 1)
+                    return prefabsMedievalPerto;
+                else if (camada <= 3)
+                    return prefabsMedievalMeio;
+                else
+                    return prefabsMedievalLonge;
+            case 2:
+                return prefabsModerno;
+            case 3:
+                return prefabsFuturo;
+            default:
+                return prefabsPreHistoria;
+        }
+    }
+
+    float GetOffsetYEpoca(int epoca)
+    {
+        switch (epoca)
+        {
+            case 0: return offsetYPreHistoria;
+            case 1: return offsetYMedieval;
+            case 2: return offsetYModerno;
+            case 3: return offsetYFuturo;
+            default: return 0f;
         }
     }
 
     void CriarPrimitivoSimples(Vector3 pos, int epoca, float escala)
     {
-        // Fallback simples caso não haja prefabs
         GameObject obj = GameObject.CreatePrimitive(PrimitiveType.Cube);
         obj.transform.position = pos + Vector3.up * 0.5f;
         obj.transform.localScale = Vector3.one * escala;
-        Destroy(obj.GetComponent<Collider>());
+
+        Collider col = obj.GetComponent<Collider>();
+        if (col != null)
+            Destroy(col);
+
         decoracoesAtivas.Add(obj);
     }
 
@@ -147,13 +253,31 @@ CriarDecoracao(new Vector3(distanciaLateral + 20f, 0f, z + Random.Range(-1f, 1f)
     {
         epocaAtual = novaEpoca;
 
-        foreach (GameObject dec in decoracoesAtivas)
-            if (dec != null) Destroy(dec);
-        decoracoesAtivas.Clear();
+        LimparTodasDecoracoes();
 
-        for (int i = -2; i < numeroDecoracoes; i++)
+        if (jogador == null) return;
+
+        for (int i = -4; i < numeroDecoracoes; i++)
+        {
             CriarParDeDecoracoes(jogador.position.z + i * intervaloDecoracao);
+        }
 
         zUltimaDecoracao = jogador.position.z + numeroDecoracoes * intervaloDecoracao;
+    }
+
+    public void LimparTodasDecoracoes()
+    {
+        foreach (GameObject dec in decoracoesAtivas)
+        {
+            if (dec != null)
+                Destroy(dec);
+        }
+
+        decoracoesAtivas.Clear();
+    }
+
+    void OnDisable()
+    {
+        LimparTodasDecoracoes();
     }
 }
