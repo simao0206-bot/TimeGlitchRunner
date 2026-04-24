@@ -434,6 +434,12 @@ MonoBehaviour:
   intervalo: 3
   chanceRaro: 0.05
   distanciaAFrente: 35
+  alturaCristal: 1.4
+  posicoesX:
+  - -2
+  - 0
+  - 2
+  raioVerificacao: 3
   jogador: {fileID: 1117628088}
 --- !u!1 &330585543
 GameObject:

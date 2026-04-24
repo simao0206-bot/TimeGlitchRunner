@@ -6,6 +6,11 @@ public class MenuManager : MonoBehaviour
     [Header("Painéis")]
     public GameObject painelControlos;
 
+    void Start()
+    {
+        PlayerPrefs.DeleteKey("ModoJogo");
+    }
+
     public void IniciarModoCronologico()
     {
         PlayerPrefs.SetString("ModoJogo", "Cronologico");
