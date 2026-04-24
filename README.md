@@ -16,7 +16,6 @@ https://github.com/simao0206-bot/TimeGlitchRunner
 
 Elementos do grupo:
 - Simão Gigante - nº 33403  
-- Fábio Esteves - nº 33402  
 
 ---
 
