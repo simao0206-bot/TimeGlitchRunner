@@ -328,7 +328,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &141370247
 Transform:
   m_ObjectHideFlags: 0
@@ -1724,11 +1724,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42143d5075aee344ea29d99a24cd9557, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
-  velocidadeInicial: 8
-  velocidadeMaxima: 20
-  aumentoVelocidade: 0.5
-  velocidadeLateral: 5
-  forcaSalto: 6
+  velocidadeInicial: 10
+  velocidadeMaxima: 24
+  aumentoVelocidade: 0.8
+  velocidadeLateral: 7
+  forcaSalto: 7
   forcaSaltoMaxima: 10
   escalaAgachado: 0.5
   limiteX: 3
@@ -2367,7 +2367,6 @@ MonoBehaviour:
   - {fileID: 4385080170328260021, guid: ff62b58c5a9ea164fa8ddf8038e10cd1, type: 3}
   - {fileID: 5440707293445505367, guid: 494f6d43e170e9145bc7865d243ee00b, type: 3}
   prefabsMedievalPerto:
-  - {fileID: 1185029752378428, guid: 3db120a6c4288974c99d5e60c01fff6a, type: 3}
   - {fileID: 1978539493889802, guid: 4e10276c0d50e804e96c8e0c88e88ba5, type: 3}
   - {fileID: 1154291972530608, guid: 7fa469182d2dc504ebec967a2e6bec53, type: 3}
   - {fileID: 5041300451467468728, guid: 9407e798e5b755c48b4329912ff5fee2, type: 3}

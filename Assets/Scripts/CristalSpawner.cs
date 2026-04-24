@@ -7,9 +7,16 @@ public class CristalSpawner : MonoBehaviour
     public GameObject prefabCristalRaro;
 
     [Header("Spawning")]
-    public float intervalo = 3f;            // segundos entre cristais
-    public float chanceRaro = 0.15f;        // 15% de chance de ser raro
-    public float distanciaAFrente = 25f;
+    public float intervalo = 3f;
+    public float chanceRaro = 0.15f;
+    public float distanciaAFrente = 35f;
+    public float alturaCristal = 1.4f;
+
+    [Header("Linhas")]
+    public float[] posicoesX = { -2f, 0f, 2f };
+
+    [Header("Segurança")]
+    public float raioVerificacao = 3f;
 
     [Header("Referência")]
     public Transform jogador;
@@ -18,6 +25,8 @@ public class CristalSpawner : MonoBehaviour
 
     void Update()
     {
+        if (jogador == null) return;
+
         timer += Time.deltaTime;
 
         if (timer >= intervalo)
@@ -28,25 +37,27 @@ public class CristalSpawner : MonoBehaviour
     }
 
     void SpawnarCristal()
-{
-    float posX = Random.Range(-2.5f, 2.5f);
-    Vector3 posicao = new Vector3(posX, 1f, jogador.position.z + distanciaAFrente);
-
-    // Verifica se há algum obstáculo nessa posição
-    Collider[] colisoes = Physics.OverlapSphere(posicao, 1.5f);
-    foreach (Collider col in colisoes)
     {
-        if (col.CompareTag("Obstaculo"))
-        {
-            // Há um obstáculo aqui — não spawna o cristal
-            return;
-        }
-    }
+        if (prefabCristalNormal == null && prefabCristalRaro == null) return;
+        if (posicoesX == null || posicoesX.Length == 0) return;
 
-    // Posição livre — spawna o cristal
-    if (Random.value < chanceRaro)
-        Instantiate(prefabCristalRaro, posicao, Quaternion.identity);
-    else
-        Instantiate(prefabCristalNormal, posicao, Quaternion.identity);
-}
+        float posX = posicoesX[Random.Range(0, posicoesX.Length)];
+        Vector3 posicao = new Vector3(posX, alturaCristal, jogador.position.z + distanciaAFrente);
+
+        Collider[] colisoes = Physics.OverlapSphere(posicao, raioVerificacao);
+
+        foreach (Collider col in colisoes)
+        {
+            if (col.CompareTag("Obstaculo"))
+                return;
+        }
+
+        GameObject prefabEscolhido = prefabCristalNormal;
+
+        if (prefabCristalRaro != null && Random.value < chanceRaro)
+            prefabEscolhido = prefabCristalRaro;
+
+        if (prefabEscolhido != null)
+            Instantiate(prefabEscolhido, posicao, Quaternion.identity);
+    }
 }

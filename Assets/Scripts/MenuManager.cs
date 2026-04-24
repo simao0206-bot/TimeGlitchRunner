@@ -1,30 +1,45 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public class MenuManager : MonoBehaviour
 {
-    public Button botaoCronologico;
-    public Button botaoAnomalia;
+    [Header("Painéis")]
+    public GameObject painelControlos;
 
-    void Start()
+    public void IniciarModoCronologico()
     {
-        // Liga os botões via código — sem precisar do Inspector
-        botaoCronologico.onClick.AddListener(IniciarCronologico);
-        botaoAnomalia.onClick.AddListener(IniciarAnomalia);
-    }
-
-    void IniciarCronologico()
-    {
-        PlayerPrefs.SetInt("ModoJogo", 0);
+        PlayerPrefs.SetString("ModoJogo", "Cronologico");
         PlayerPrefs.Save();
+
         SceneManager.LoadScene("GameScene");
     }
 
-    void IniciarAnomalia()
+    public void IniciarModoAnomalia()
     {
-        PlayerPrefs.SetInt("ModoJogo", 1);
+        PlayerPrefs.SetString("ModoJogo", "Anomalia");
         PlayerPrefs.Save();
+
         SceneManager.LoadScene("GameScene");
+    }
+
+    public void MostrarControlos()
+    {
+        if (painelControlos != null)
+            painelControlos.SetActive(true);
+    }
+
+    public void FecharControlos()
+    {
+        if (painelControlos != null)
+            painelControlos.SetActive(false);
+    }
+
+    public void SairDoJogo()
+    {
+        Application.Quit();
+
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#endif
     }
 }

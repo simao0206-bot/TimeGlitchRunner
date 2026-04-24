@@ -82,14 +82,14 @@ public class TimeGlitch : MonoBehaviour
         12f,
         15f,
         18f,
-        22f
+        24f
     };
 
     private float[] intervalosObstaculos = {
-        2.5f,
-        1.6f,
+        2.0f,
         1.4f,
-        1.0f
+        1.2f,
+        0.8f
     };
 
     private string[] nomesEpocas = {
@@ -114,6 +114,9 @@ public class TimeGlitch : MonoBehaviour
     };
 
     private int epocaAtual = 0;
+    private int proximaEpocaAvisada = 0;
+    private bool modoAnomalia = false;
+
     private AudioSource audioSource;
     private CameraFollow cameraFollow;
     private CidadeModernaSpawner cidadeModernaSpawner;
@@ -131,7 +134,19 @@ public class TimeGlitch : MonoBehaviour
         if (cidadeModerna != null)
             cidadeModernaSpawner = cidadeModerna.GetComponent<CidadeModernaSpawner>();
 
-        AplicarEpoca(0);
+        string modoJogo = PlayerPrefs.GetString("ModoJogo", "Cronologico");
+        modoAnomalia = modoJogo == "Anomalia";
+
+        if (modoAnomalia)
+{
+    epocaAtual = Random.Range(0, nomesEpocas.Length);
+}
+else
+{
+    epocaAtual = 0;
+}
+
+AplicarEpoca(epocaAtual);
 
         if (textoAviso != null)
             textoAviso.gameObject.SetActive(false);
@@ -155,12 +170,12 @@ public class TimeGlitch : MonoBehaviour
 
     IEnumerator AvisoPreGlitch()
     {
-        int proximaEpoca = (epocaAtual + 1) % nomesEpocas.Length;
+        proximaEpocaAvisada = CalcularProximaEpoca();
 
         if (textoAviso != null)
         {
             textoAviso.gameObject.SetActive(true);
-            textoAviso.text = avisosPoeticos[proximaEpoca];
+            textoAviso.text = avisosPoeticos[proximaEpocaAvisada];
             textoAviso.color = Color.red;
             textoAviso.enabled = true;
         }
@@ -201,7 +216,7 @@ public class TimeGlitch : MonoBehaviour
             }
 
             painelFlash.color = new Color(0f, 0f, 0f, 1f);
-            epocaAtual = (epocaAtual + 1) % nomesEpocas.Length;
+            epocaAtual = proximaEpocaAvisada;
             AplicarEpoca(epocaAtual);
             yield return new WaitForSeconds(0.1f);
 
@@ -228,9 +243,24 @@ public class TimeGlitch : MonoBehaviour
         }
         else
         {
-            epocaAtual = (epocaAtual + 1) % nomesEpocas.Length;
+            epocaAtual = proximaEpocaAvisada;
             AplicarEpoca(epocaAtual);
         }
+    }
+
+    int CalcularProximaEpoca()
+    {
+        if (!modoAnomalia)
+            return (epocaAtual + 1) % nomesEpocas.Length;
+
+        int novaEpoca = epocaAtual;
+
+        while (novaEpoca == epocaAtual)
+        {
+            novaEpoca = Random.Range(0, nomesEpocas.Length);
+        }
+
+        return novaEpoca;
     }
 
     void AplicarEpoca(int indice)
@@ -251,13 +281,12 @@ public class TimeGlitch : MonoBehaviour
         ConfigurarFundoCamara(indice);
 
         if (playerMovement != null)
-{
-    float novaVel = velocidadesMaximas[indice];
+        {
+            float novaVel = velocidadesMaximas[indice];
 
-    // Só aumenta, nunca diminui
-    if (novaVel > playerMovement.velocidadeMaxima)
-        playerMovement.velocidadeMaxima = novaVel;
-}
+            if (novaVel > playerMovement.velocidadeMaxima)
+                playerMovement.velocidadeMaxima = novaVel;
+        }
 
         if (obstacleSpawner != null)
         {
